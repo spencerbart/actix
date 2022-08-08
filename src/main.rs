@@ -1,3 +1,4 @@
+use std::env;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 
 #[get("/")]
@@ -16,13 +17,15 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    let port_string: String = env::var("PORT").unwrap_or("8080".to_string());
+    let port_number: u16 = port_string.parse().unwrap();
     HttpServer::new(|| {
         App::new()
             .service(hello)
             .service(echo)
             .route("/hey", web::get().to(manual_hello))
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(("0.0.0.0", port_number))?
     .run()
     .await
 }
